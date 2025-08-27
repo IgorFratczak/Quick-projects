@@ -1,15 +1,21 @@
+// Pair Generator Script
+// Author: Igor Frątczak
+//  License: MIT
+
+// Global Variables
 let children = [];
 let allPairs = new Set();
 let results = [];
 
+// Event Listeners
 document.getElementById("fileInput").addEventListener("change", handleFile);
 document.getElementById("generateBtn").addEventListener("click", generatePairs);
 document.getElementById("downloadBtn").addEventListener("click", downloadCSV);
 
+// Handle file input and read names
 function handleFile(event) {
   const file = event.target.files[0];
   if (!file) return;
-
   const reader = new FileReader();
   reader.onload = function (e) {
     children = e.target.result
@@ -22,31 +28,28 @@ function handleFile(event) {
   reader.readAsText(file);
 }
 
+// Generate pairs for multiple iterations
 function generatePairs() {
   if (children.length < 2) {
     alert("Load name list!");
     return;
   }
-
   results = [];
   allPairs.clear();
-
   const iterations = children.length + (children.length % 2) - 1;
-
   for (let i = 0; i < iterations; i++) {
     let iterationPairs = generateIteration(children);
     if (iterationPairs.length === 1 && iterationPairs[0] === "(reset)") {
       allPairs.clear();
       iterationPairs = generateIteration(children);
     }
-
     results.push(iterationPairs);
   }
-
   displayResults();
   document.getElementById("downloadBtn").disabled = false;
 }
 
+// Generate pairs for a single iteration
 function generateIteration(list) {
   let tempList = [...list];
   let iterationPairs = [];
@@ -54,7 +57,6 @@ function generateIteration(list) {
 
   while (tempList.length > 1) {
     let foundPair = false;
-
     for (let i = 0; i < tempList.length; i++) {
       for (let j = i + 1; j < tempList.length; j++) {
         let pair = [tempList[i], tempList[j]].sort().join(" - ");
@@ -70,19 +72,17 @@ function generateIteration(list) {
       }
       if (foundPair) break;
     }
-
     if (!foundPair) {
       return ["(reset)"];
     }
   }
-
   return iterationPairs;
 }
 
+// Display results on the webpage
 function displayResults() {
   const output = document.getElementById("output");
   output.innerHTML = "";
-
   results.forEach((iteration, idx) => {
     let div = document.createElement("div");
     div.className = "iteration";
@@ -97,12 +97,11 @@ function displayResults() {
   });
 }
 
+// Download results as CSV file
 function downloadCSV() {
   let csvContent = "\uFEFF";
-
   results.forEach((iteration, idx) => {
     csvContent += `Iteration ${idx + 1}\n`;
-
     iteration.forEach((pair) => {
       if (pair === "(reset)") {
         csvContent += pair + "\n";
@@ -111,7 +110,6 @@ function downloadCSV() {
         csvContent += `${names[0]};${names[1]}\n`;
       }
     });
-
     csvContent += "\n";
   });
 
